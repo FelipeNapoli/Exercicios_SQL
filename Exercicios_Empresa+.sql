@@ -27,3 +27,49 @@ describe tbVeiculo;
 
 alter table tbVeiculo
 add marca varchar(50) not null;
+
+alter table tbVeiculo
+add cor varchar(30);
+
+alter table tbVeiculo
+modify modelo varchar(150) not null;
+
+alter table tbVeiculo
+rename column valor_estimado to valor_mercado;
+
+describe tbVeiculo;
+
+-- Ex06 Removendo base de dados veterinária
+
+DROP DATABASE IF EXISTS dbveterinaria;
+
+SHOW DATABASES;
+
+-- Ex07 Criação e Remoção de bases de dados de Homologação
+
+CREATE DATABASE dbOficinaHomologacao;
+CREATE DATABASE dbEscolaHomologacao;
+
+SHOW DATABASES;
+
+USE dbOficinaHomologacao;
+USE dbEscolaHomologacao;
+
+DROP DATABASE IF EXISTS dbOficinaHomologacao;
+DROP DATABASE IF EXISTS dbEscolaHomologacao;
+
+-- Ex08 Apresentação do banco de dados da empresa
+
+SHOW DATABASES;
+
+USE dbOficina;
+
+SHOW TABLES;
+
+DESC tbVeiculo;
+
+USE dbEscolaIdiomas;
+
+SHOW TABLES;
+
+USE dbOficina;
