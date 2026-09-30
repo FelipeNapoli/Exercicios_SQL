@@ -138,6 +138,7 @@ CREATE TABLE matricula(
     foreign key(id_aluno) references tbAluno(id_aluno),
     id_turma int,
     foreign key(id_turma) references tbTurma(id_turma),
+	PRIMARY KEY (id_aluno, id_turma),
     data_matricula date not null,
     situacao varchar(20) not null
 );
