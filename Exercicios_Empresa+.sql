@@ -143,3 +143,137 @@ CREATE TABLE matricula(
     situacao varchar(20) not null
 );
 
+ALTER TABLE matricula RENAME tbMatricula;
+
+-- Ex14 Explicação da normalização
+
+/*
+
+Curso 1, 2 e 3 como colunas da tabela 
+poderia gerar inconsistência de dados
+caso ocorra alguma mudança nos cursos.
+
+*/
+
+USE dbEscolaIdiomas;
+
+DESC tbTurma;
+DESC tbMatricula;
+
+-- Ex15 Corrigindo erros na implementação do levantamento
+
+CREATE DATABASE IF NOT EXISTS dbTreinamento;
+USE dbTreinamento;
+
+CREATE TABLE IF NOT EXISTS tbCliente (
+	id_cliente INT,
+    nome VARCHAR(100) NOT NULL,
+    cpf CHAR(11),
+    ativo BOOLEAN
+);
+
+ALTER TABLE tbCliente 
+	MODIFY id_cliente INT PRIMARY KEY AUTO_INCREMENT,
+    MODIFY nome VARCHAR(100) NOT NULL,
+    MODIFY cpf CHAR(11) NOT NULL UNIQUE,
+    MODIFY ativo BOOLEAN DEFAULT TRUE;
+    
+DESC tbCliente;
+
+-- Ex16 Projeto Locadora
+
+CREATE DATABASE dbLocadoraTeste;
+USE dbLocadoraTeste;
+
+CREATE TABLE tbCliente (
+	id_cliente INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(150) NOT NULL,
+    documento VARCHAR(14) NOT NULL UNIQUE,
+    telefone CHAR(11) NULL,
+    situacao BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE tbCategoria (
+	id_categoria INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(80) NOT NULL UNIQUE
+);
+
+CREATE TABLE tbEquipamento (
+	id_equip INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(120) NOT NULL,
+    id_categoria INT,
+    FOREIGN KEY (id_categoria) 
+		REFERENCES tbCategoria(id_categoria),
+	valor_diario DECIMAL(8, 2),
+    situacao BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE tbLocacao (
+	id_locacao INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT,
+    FOREIGN KEY (id_cliente)
+		REFERENCES tbCliente(id_cliente),
+	retirada DATETIME,
+	devolucao DATE,
+    situacao BOOLEAN
+);
+
+CREATE TABLE tbItem_Locacao (
+	id_locacao INT,
+    id_equip INT,
+    PRIMARY KEY (id_equip, id_locacao),
+    FOREIGN KEY (id_locacao)
+		REFERENCES tbLocacao(id_locacao),
+	FOREIGN KEY (id_equip)
+		REFERENCES tbEquipamento(id_equip),
+    valor_diario DECIMAL(8, 2)
+);
+
+SHOW DATABASES;
+DESC tbCliente;
+DESC tbCategoria;
+DESC tbEquipamento;
+DESC tbLocacao;
+DESC tbItem_Locacao;
+
+-- Ex18 Mudanças na Locadora
+
+ALTER TABLE tbEquipamento
+	MODIFY nome VARCHAR(180) NOT NULL,
+    ADD marca VARCHAR(80) NOT NULL;
+    
+ALTER TABLE tbCliente
+	DROP telefone;
+
+ALTER TABLE tbItem_Locacao
+	RENAME COLUMN valor_diario TO valor_locacao;
+
+ALTER TABLE tbCategoria
+	RENAME tbTipo_equipamento;
+
+DESC tbEquipamento;
+DESC tbItem_Locacao;
+DESC tbCliente;
+SHOW TABLES;
+
+-- Ex18 Estrutura Temporária
+
+CREATE TABLE tbEquipamento_importacao (
+	codigo INT PRIMARY KEY AUTO_INCREMENT,
+    descricao VARCHAR(200),
+    quantidade INT NOT NULL
+);
+
+-- Opção A
+
+TRUNCATE tbEquipamento_importacao;
+
+-- Opção B
+
+DROP TABLE tbEquipamento_importacao;
+
+-- Ex19 Encerrando os ambientes de treinamento
+
+DROP DATABASE dblocadorateste;
+
+DROP DATABASE dbtreinamento;
