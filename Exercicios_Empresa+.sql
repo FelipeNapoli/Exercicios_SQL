@@ -277,3 +277,175 @@ DROP TABLE tbEquipamento_importacao;
 DROP DATABASE dblocadorateste;
 
 DROP DATABASE dbtreinamento;
+
+-- Ex20 Análise de requisitos e modelagem de dados
+
+/*
+1° Entidades:
+
+Produto, cliente, funcionário,
+estoque, pedido, fornecedor,
+entrega, categoria, pagamento,
+cidade
+
+2° Relacionamentos:
+
+cliente --> faz --> pedido
+funcionario --> realiza --> pedido
+pedido --> contém --> produto
+fornecedor --> fornece --> produto
+produto --> possui --> estoque
+entrega --> contém --> pedido
+categoria --> classifica --> produto
+pedido --> possui --> pagamento
+
+3° Relacionamento 1:N:
+
+cliente e pedido -> 1:N
+funcionario e pedido -> 1:N
+categoria e produto -> 1:N
+pedido e pagamento -> 1:N
+pedido e entrega -> 1:N
+
+4° Relacionamento N:N
+
+pedido e produto -> N:N
+fornecedor e produto -> depende da regra do negócio, mas colocarei N:N
+
+5° Entidades associativas
+
+pedido_produto
+fornecedor_produto
+
+6° Normalização 
+
+Estado passou a ser uma nova tabela que se 
+relaciona com cidade.
+
+endereço passou a ser uma nova tabela
+que se relaciona com cliente
+
+
+
+*/
+
+-- Ex22 Modelo físico
+
+/*
+INÍCIO DA IMPLEMENTAÇÃO DO BANCO DE DADOS FÍSICO
+*/
+
+CREATE DATABASE dbHorizonte;
+SHOW DATABASES;
+USE dbHorizonte;
+
+-- Ex23 Implementando Localizaçâo
+
+CREATE TABLE tbEstado (
+	id_estado INT PRIMARY KEY AUTO_INCREMENT,
+    sigla CHAR(2) NOT NULL UNIQUE,
+    nome VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tbCidade (
+	id_cidade INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    id_estado INT,
+	FOREIGN KEY (id_estado)
+		REFERENCES tbEstado(id_estado)
+);
+
+DESC tbCidade;
+DESC tbEstado;
+
+-- Ex24 Implementando Clientes e Endereços
+
+CREATE TABLE tbCliente (
+	id_cliente INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(150) NOT NULL,
+    documento VARCHAR(14) NOT NULL UNIQUE,
+    tipo_pessoa ENUM("F", "J") NOT NULL,
+    telefone VARCHAR(11) NULL,
+    email VARCHAR(100) NULL,
+    data_nasc DATE NULL,
+    data_cadastro DATETIME NOT NULL,
+    situacao BOOL NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE tbEndereco (
+	id_endereco INT PRIMARY KEY,
+    logradouro VARCHAR(120) NOT NULL,
+    numero VARCHAR(10) NOT NULL,
+    complemento VARCHAR(100) NULL,
+    cep CHAR(8) NOT NULL,
+    id_cidade INT NOT NULL,
+    id_cliente INT NOT NULL,
+    FOREIGN KEY (id_cidade)
+		REFERENCES tbCidade(id_cidade),
+	FOREIGN KEY (id_cliente)
+		REFERENCES tbCliente(id_cliente)
+);
+
+-- Ex25 Estrutura organizacional
+
+CREATE TABLE tbCargo (
+	id_cargo INT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL UNIQUE,
+    salario_base DECIMAL(8, 2) NOT NULL CHECK(salario_base > 0)
+);
+
+CREATE TABLE tbFuncionario (
+	id_funcionario INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(180) NOT NULL,
+    cpf CHAR(11) NOT NULL UNIQUE,
+    data_admissao DATE NOT NULL,
+    horario_entrada TIME,
+    situacao BOOL DEFAULT TRUE,
+    id_cargo INT NOT NULL,
+    FOREIGN KEY (id_cargo)
+		REFERENCES tbCargo(id_cargo)
+);
+
+DESC tbFuncionario;
+
+-- Ex26 Catálogo Comercial
+
+CREATE TABLE tbCategoria (
+	id_categoria INT PRIMARY KEY,
+    nome VARCHAR(180) NOT NULL UNIQUE,
+    descricao VARCHAR(180) NULL
+);
+
+CREATE TABLE tbProduto (
+	id_produto INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(180) NOT NULL,
+    preco_venda DECIMAL(8, 2) CHECK(preco_venda > 0) NOT NULL,
+    fabricacao YEAR NOT NULL,
+    min_estoque INT CHECK(min_estoque > 0) NOT NULL,
+    situacao BOOL DEFAULT TRUE,
+    id_categoria INT NOT NULL,
+    FOREIGN KEY (id_categoria)
+		REFERENCES tbCategoria(id_categoria)	
+);
+
+--  Ex27 Fornecedor e Produtos
+
+CREATE TABLE tbFornecedor (
+	id_fornecedor INT PRIMARY KEY,
+    razao_social VARCHAR(180) NOT NULL,
+    cnpj CHAR(14) NOT NULL UNIQUE,
+    telefone VARCHAR(11) NULL,
+    email VARCHAR(100) NULL,
+    situacao BOOL DEFAULT TRUE
+);
+
+CREATE TABLE tbProduto_Fornecedor (
+	id_produto INT,
+    id_fornecedor INT,
+    PRIMARY KEY (id_produto, id_fornecedor),
+    FOREIGN KEY (id_produto)
+		REFERENCES tbProduto(id_produto),
+	FOREIGN KEY (id_fornecedor)
+		REFERENCES tbFornecedor(id_fornecedor),
+	preco_custo DECIMAL(8, 2) CHECK(preco_custo > 0) NOT NULL
+);
